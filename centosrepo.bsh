@@ -1,0 +1,13 @@
+#!/bin/bash
+
+mkdir /centosiso
+echo "Mounting ISO and creating repo..."
+mount -o loop CentOS*.iso /centosiso
+echo "[centos-iso]
+name=CentOS ISO
+baseurl=file:///centosiso/
+enabled=1 
+" > /etc/yum.repos.d/iso.repo
+echo "Cleaning up..."
+yum clean all
+
