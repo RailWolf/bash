@@ -1,0 +1,22 @@
+#!/bin/bash
+
+ethit () {
+ethtool -S ens1f0 | grep "x-$1\.tx_p" | awk {'print $2'}
+}
+
+for i in {0..55}; do
+ queueold[$i]=$(ethit $i)
+done
+
+while :; do
+ for i in {0..55}; do 
+ queue[$i]=$(ethit $i)
+   if [ ${queueold[$i]} -lt ${queue[$i]} ]; then
+   echo "Queue $i: ${queue[$i]}"
+   queueold[$i]=${queue[$i]}
+   fi
+ done
+sleep .7
+printf "\n"
+done 
+

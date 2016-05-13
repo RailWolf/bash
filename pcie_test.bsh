@@ -1,0 +1,48 @@
+#!/bin/bash
+
+#This script will check the PCIe link speed of a dual port NIC. 
+#Execute this from rc.local and append the results to a log file with >>
+
+sleep 10
+DEV="XL710"
+IFACE="eth"
+
+#Filter the lspci output down to just the LinkSta: value for DEV
+chk () {
+ /sbin/lspci -vv | grep -A 30 $DEV | grep "GT/s" | awk 'NR=='$1'{sub(/,/,""); print $3}'
+}
+
+#Use the IP of the PXE client to identify the system in the log file. 
+getip () {
+ /sbin/ifconfig | grep -A 1 $IFACE | grep "inet" | awk '{sub(/addr:/,""); print $2 }'
+}
+
+NAME=$(getip)
+ONE=$(chk 2)
+TWO=$(chk 4)
+
+echo "Restart"
+echo "Time :" $(date)
+echo "Epoch:" $(date +%s)
+echo $ONE
+echo $TWO
+
+#Both PFs should show the same link speed, but go ahead and check both for completeness.
+#Check first PF
+  if [ $ONE != "8GT/s" ]; then
+   echo "Link Speed Downshift Detected!"
+   echo "$NAME is linked at $ONE" | tee -a $NAME
+   exit
+  fi
+
+#Check second PF
+  if [ $TWO != "8GT/s" ]; then
+   echo "Link Speed Downshift Detected!"
+   echo "$NAME is linked at $TWO" | tee -a $NAME
+   exit
+  fi
+
+printf "$NAME Successfully linked at $ONE\n\n"
+
+reboot
+
