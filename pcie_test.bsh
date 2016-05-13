@@ -1,7 +1,7 @@
 #!/bin/bash
 
-#This script will check the PCIe link speed of a dual port NIC. 
-#Execute this from rc.local and append the results to a log file with >>
+#This script will check the PCIe link speed of a dual port NIC during on/off testing. 
+#Execute this from your startup scripts
 
 sleep 10
 DEV="XL710"
