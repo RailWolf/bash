@@ -1,0 +1,17 @@
+#!/bin/bash
+#work in progress
+
+index_path="mirrors.rit.edu/fedora/fedora/linux/releases/23/Everything/x86_64/os/Packages"
+#for i in {a..z}; do wget -r http://$index_path/$i/;done
+
+cat packages.list | while read -r c; do 
+ d=$(echo $c | cut -c1 | tr '[:upper:]' '[:lower:]');
+ filename=$(grep -i -m1 "$c.*rpm" "$index_path/$d/index.html"|head -n1|
+ sed 's/href=\"/href=\"\n/g' | sed 's/">/\n">/g' |
+ sed 's/">/">\n/g'| sed 's/<\/a>/\n<\/a>/g' | grep -m1 $c)
+  if [ ! -z $filename ]
+   then
+   echo $filename
+   wget "http://$index_path/$d/$filename"
+  fi
+  done
