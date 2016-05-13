@@ -1,0 +1,63 @@
+#!/bin/bash
+
+#interfaces to test
+EONE="eth2"
+ETWO="eth3"
+
+LOOPCOUNTER=0
+
+#link speed check
+lschk () {
+/sbin/ethtool $1 2>&1 | grep "Speed" | awk {'print $2'}
+}
+
+#reset
+reset () {
+/sbin/ethtool -r $1 > /dev/null
+}
+
+
+#loops until stopped by user
+while :
+do
+ printf "\nReset: $LOOPCOUNTER\n"
+ echo "Time :" $(date)
+ echo "Epoch:" $(date +%s)
+
+#first interface - EONE
+  UNCOUNTER=0
+  reset $EONE
+  sleep 1
+  LINKSPEED=$(lschk $EONE)
+   #Wait for link speed negotiation. 
+   while [ $LINKSPEED == "Unknown!" ] ; do
+   sleep 1
+   #If it takes longer than 90 passes to obtain link speed then echo an info line
+   UNCOUNTER=$(( $UNCOUNTER + 1 ))
+    if [ $UNCOUNTER -eq 90 ] ; then
+       echo "Link has been Unknown! for $UNCOUNTER passes"
+    fi
+   LINKSPEED=$(lschk $EONE)
+   done
+ echo $EONE : $LINKSPEED
+
+#second interface - ETWO
+  UNCOUNTER=0
+  reset $ETWO
+  sleep 1
+  LINKSPEED=$(lschk $ETWO)
+   #Wait for link speed negotiation. 
+   while [ $LINKSPEED == "Unknown!" ] ; do
+   sleep 1
+   #If it takes longer than 90 passes to obtain link speed then echo an info line
+   UNCOUNTER=$(( $UNCOUNTER + 1 ))
+    if [ $UNCOUNTER -eq 90 ] ; then
+       echo "Link has been Unknown! for $UNCOUNTER passes"
+    fi
+   LINKSPEED=$(lschk $ETWO)
+   done
+ echo $ETWO : $LINKSPEED
+ LOOPCOUNTER=$(( $LOOPCOUNTER + 1 ))
+done
+
+
