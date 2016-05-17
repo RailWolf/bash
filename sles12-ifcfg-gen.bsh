@@ -1,0 +1,22 @@
+#!/bin/bash
+
+#SLES 12 network interface file generator
+ipl () {
+ip link | grep state | awk {'gsub(/:/,"");print$2'}
+}
+
+ipl | while read -r i; do 
+ filename="/etc/sysconfig/network/ifcfg-$i"
+  if [ -e $filename ] && [ -s $filename ]; then
+   echo "Config exists for $i"
+   else
+   echo "No config for $i, generating one now..."
+   printf \
+   "BOOTPROTO='dhcp'
+   STARTMODE='auto'
+   UUID=$(uuidgen $i)
+   " > $filename
+  fi
+done
+
+
