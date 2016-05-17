@@ -8,7 +8,7 @@ LOOPCOUNTER=0
 
 #link speed check
 lschk () {
-/sbin/ethtool $1 2>&1 | grep "Speed" | awk {'print $2'}
+/sbin/ethtool $1 2>&1 | awk '/Speed/ {print $2}'
 }
 
 #reset
