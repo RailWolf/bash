@@ -1,0 +1,65 @@
+#!/bin/bash
+#RHEL 7 bonding config generator 
+#2016 Brandon Calhoun
+#Work in Progress
+
+bond0path="/etc/sysconfig/network-scripts/ifcfg-bond0"
+slavepath="/etc/sysconfig/network-scripts/ifcfg-"
+
+#Obtain a list of interface names
+ipl () {
+ ip link | awk '/state/ {gsub(/:/,"");print$2}'
+}
+
+#Provide some details on the interfaces
+ifo () {
+ ethtool -i $1 2>/dev/null| awk '/bus-info/  {print $2}' | xargs -r lspci -vvv -s | awk '/Subsystem/ {$1=""; print $0}' 
+}
+
+#bond0 configuration file
+bond0cfg () {
+echo \
+"DEVICE=bond0
+BOOTPROTO=dhcp
+#IPADDR=192.168.1.1
+#NETMASK=255.255.255.0
+ONBOOT=yes
+USERCTL=no
+NM_CONTROLLED=no
+BONDING_OPTS="$1 $2"
+" > $bond0path
+}
+
+slaves () {
+echo \
+"MASTER=bond0
+SLAVE=yes
+" >> $1
+}
+
+modprobe -r bonding
+echo "<--- select the bonding mode --->"
+echo \
+"0 - balance-rr
+1 - active-backup
+2 - balance-xor
+3 - broadcast
+4 - 802.3ad
+5 - balance-tlb
+6 - balance-alb"
+
+read -p "Enter a number 0 through 6: " mode
+printf "Loading bonding driver in mode $mode with miimon=100\n\n"
+modprobe bonding mode="$mode" miimon=100
+bond0cfg mode=$mode miimon=100
+
+
+echo "<--- select which interfaces to bond --->"
+ipl | while read -r i; do printf "$i - $( ifo $i ) \n"; done; printf "\n"
+read -p "type interface names seperated by a space: " ifaces
+ip link set bond0 up
+echo $ifaces | sed "s/\s\+/\n/g" | while read -r c; do ifenslave bond0 $c; slaves $slavepath"$c"; done
+
+
+
+

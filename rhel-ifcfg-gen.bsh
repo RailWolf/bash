@@ -1,0 +1,30 @@
+#!/bin/bash
+#RHEL 7 network interface file generator
+#2016 Brandon Calhoun
+
+#Obtain a list of interface names
+ipl () {
+ip link | awk '/state/ {gsub(/:/,"");print$2}'
+}
+
+#Create a new configuration file if one doesn't already exist
+ipl | while read -r i; do 
+ filename="/etc/sysconfig/network-scripts/ifcfg-$i"
+  if [ -e $filename ] && [ -s $filename ]; then
+   echo "Config exists for $i"
+   else
+   echo "No config for $i, generating one now..."
+   printf \
+   "DEVICE=$i
+   BOOTPROTO=dhcp
+   #IPADDR=
+   #NETMASK=
+   IPV6INIT=yes
+   IPV6_AUTOCONF=yes
+   ONBOOT=yes
+   NM_CONTROLLED=no
+   UUID=$(uuidgen $i)
+   " > $filename
+  fi
+done
+
