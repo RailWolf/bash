@@ -3,7 +3,7 @@
 
 #Obtain a list of interface names
 ipl () {
-ip link | grep state | awk {'gsub(/:/,"");print$2'}
+ip link | awk '/state/ {gsub(/:/,"");print$2}'
 }
 
 #Create a new configuration file if one doesn't already exist
