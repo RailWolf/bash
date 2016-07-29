@@ -6,7 +6,6 @@ count_old=$(pps)
 while :; do
 sleep 1
 count_new=$(pps)
-packets_per_second=$(($count_new - $count_old))
-echo $packets_per_second
+echo $(($count_new - $count_old))
 count_old=$count_new
 done
