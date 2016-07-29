@@ -1,4 +1,7 @@
 #!/bin/bash
+#Monitor Packets Per Second of the specified interface
+#2016 Brandon Calhoun
+
 pps () {
 ethtool -S eth1 | grep rx_packet | awk 'NR==1 {print $2}'
 }
