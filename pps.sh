@@ -1,5 +1,5 @@
 #!/bin/bash
-#Monitor Packets Per Second of the specified interface
+#Monitor RX Packets Per Second of the specified interface
 #2016 Brandon Calhoun
 
 pps () {
