@@ -1,9 +1,11 @@
 #!/bin/bash
-#Monitor RX Packets Per Second of the specified interface
+#Monitor RX Packets Per Second
+#Set IFACE to the name of the interface to monitor
 #2016 Brandon Calhoun
 
+IFACE=eth1
 pps () {
-ethtool -S eth1 | awk '/rx_packet/{NR==1;print $2}'
+ethtool -S $IFACE| awk '/rx_packet/{NR==1;print $2}'
 }
 count_old=$(pps)
 while :; do
