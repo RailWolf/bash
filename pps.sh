@@ -3,7 +3,7 @@
 #2016 Brandon Calhoun
 
 pps () {
-ethtool -S eth1 | awk '/rx_packet {NR==1; print $2}'
+ethtool -S eth1 | awk '/rx_packet/ {NR==1; print $2}'
 }
 count_old=$(pps)
 while :; do
