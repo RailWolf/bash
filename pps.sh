@@ -5,7 +5,7 @@
 
 IFACE=eth1
 pps () {
-ethtool -S $IFACE| awk '/rx_packet/{NR==1;print $2}'
+ethtool -S $IFACE|grep rx_packet| awk 'NR==1 {print $2}'
 }
 count_old=$(pps)
 while :; do
