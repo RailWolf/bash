@@ -18,7 +18,7 @@ while :; do
  rx_dropped_new=$(rx_packet_data rx_dropped)
  echo "Dropped packets total"
  rx_packet_data rx_dropped | sed ':a;s/\B[0-9]\{3\}\>/,&/;ta'
- echo -e "${RED}Dropped packets per second${NC}" | sed ':a;s/\B[0-9]\{3\}\>/,&/;ta'
+ echo -e "${RED}Dropped packets per second${NC}"
  echo -e "${RED}$((rx_dropped_new - rx_dropped_old)) ${NC}" | sed ':a;s/\B[0-9]\{3\}\>/,&/;ta'
  echo "rx_packets total"
  rx_packet_data rx_packet | sed ':a;s/\B[0-9]\{3\}\>/,&/;ta'
