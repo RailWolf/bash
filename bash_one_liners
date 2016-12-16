@@ -1,0 +1,38 @@
+#All In One Display: Interface Name, Adapter Branding String, Driver Name/Version, Firmware Version, Bus Location, IPv4 Address and IPv6 Address
+
+ip link | awk '/mtu/ {gsub(/:/,"");print$2}' | sort | while read -r i; do printf "\n$i\n"; b=$(ethtool -i $i 2> /dev/null | awk 'NR>=1 && NR<=4' );echo "$b" | awk 'NR==4 {print $2}' | xargs lspci -s 2>/dev/null | cut -d' ' -f 4-; echo "$b";  ip addr show dev $i |  awk '/inet/ {print $2}'; done
+
+
+#Display PCIe configuration space for all of the Ethernet controllers listed in lspci
+ 
+lspci | awk '/Eth/ {print $1}' | while read -r i; do lspci -vvv -s $i; done
+ 
+
+#Show just the IP Addresses of devices listed in 'ifconfig'
+
+ifconfig | grep -B1 inet
+
+ 
+
+#Bring up all interfaces
+ip link | awk '/mtu/ {gsub(/:/,""); print $2}' | while read -r i; do ip link set dev $i up; done
+ 
+
+#Show the link status of interfaces listed in 'ip link'
+
+#Note that if the interface is down, it may not show as having a link even if it has a cable plugged in, so use the "Bring up all interfaces" line from above if needed.
+
+ip link | awk '/mtu/ {gsub(/:/,"");print$2}' | sort | while read -r i; do echo $i; ethtool $i | grep "Speed\|Link d"; done
+
+ 
+
+#Show the 'ethtool -i' output for every device listed in 'ip link'
+
+#This can be useful if you have a system with multiple NICs and need to quickly identify which interface cooresponds to which bus location and driver
+
+ip link | awk '/mtu/ {gsub(/:/,"");print$2}' | sort | while read -r i; do printf "\n$i\n"; ethtool -i $i 2> /dev/null; done
+ 
+
+#Compile and install every driver located in the current working directory
+
+for i in *; do f=${i/".tar.gz"/""}; tar -zxf $i; printf "\n<-BUILDING $f->\n"; cd $f/src; make install; cd ../../; printf "\n\n";done
